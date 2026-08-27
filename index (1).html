@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kian Reyes — Cinematic Video Editor & Content Creator</title>
+<meta name="description" content="Kian Reyes is a professional video editor specializing in YouTube, commercials, reels, shorts, and brand content. Storytelling, color grading, motion graphics and sound design that turns footage into cinematic stories.">
+<meta name="keywords" content="video editor, video editing portfolio, YouTube editor, colorist, motion graphics, reels editor, commercial editing">
+<meta name="author" content="Kian Reyes">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://kianreyes.example/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kian Reyes — Turning Ideas Into Cinematic Stories">
+<meta property="og:description" content="Professional Video Editor specializing in YouTube, Commercials, Reels, Shorts, and Brand Content.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=1200&q=80">
+<meta property="og:url" content="https://kianreyes.example/">
+<meta property="og:site_name" content="Kian Reyes — Video Editor">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kian Reyes — Turning Ideas Into Cinematic Stories">
+<meta name="twitter:description" content="Professional Video Editor specializing in YouTube, Commercials, Reels, Shorts, and Brand Content.">
+
+<!-- Favicon (inline SVG, playhead mark) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B0B0B'/%3E%3Cpolygon points='38,28 74,50 38,72' fill='%233E8FFF'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+:root{
+  --bg:#0b0b0b;
+  --bg-soft:#111113;
+  --bg-elevated:#151517;
+  --glass: rgba(255,255,255,0.045);
+  --glass-strong: rgba(255,255,255,0.07);
+  --glass-border: rgba(255,255,255,0.09);
+  --blue:#3E8FFF;
+  --purple:#A855F7;
+  --cyan:#7DF9FF;
+  --text:#F3F4F6;
+  --text-dim:#9AA0A8;
+  --text-faint:#5c6169;
+  --display: 'Space Grotesk', sans-serif;
+  --body: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --ease: cubic-bezier(.16,.84,.44,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+::selection{background:var(--purple);color:#fff;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--body);
+  overflow-x:hidden;
+  cursor:none;
+}
+@media (max-width:900px){ body{cursor:auto;} }
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px;}
+@media(max-width:640px){ .wrap{padding:0 20px;} }
+
+/* film grain overlay */
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:9994;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.scanline{
+  position:fixed;inset:0;pointer-events:none;z-index:9993;opacity:.5;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+}
+
+/* custom cursor: playhead scrubber */
+.cursor{
+  position:fixed;top:0;left:0;width:20px;height:20px;pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);mix-blend-mode:difference;
+}
+.cursor::before{
+  content:"";position:absolute;inset:0;border-radius:50%;border:1px solid #fff;
+}
+.cursor::after{
+  content:"";position:absolute;left:50%;top:50%;width:3px;height:3px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);
+}
+.cursor-glow{
+  position:fixed;top:0;left:0;width:420px;height:420px;pointer-events:none;z-index:1;
+  background:radial-gradient(circle, rgba(62,143,255,0.10), rgba(168,85,247,0.06) 40%, transparent 70%);
+  transform:translate(-50%,-50%);border-radius:50%;transition:opacity .3s;
+}
+.cursor-label{
+  position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(14px,14px);
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:#fff;opacity:0;transition:opacity .2s;
+  white-space:nowrap;
+}
+
+/* loader */
+#loader{
+  position:fixed;inset:0;background:#0b0b0b;z-index:10000;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:22px;
+}
+.loader-mark{font-family:var(--display);font-size:15px;letter-spacing:.35em;color:var(--text-dim);text-transform:uppercase;}
+.loader-bar{width:220px;height:1px;background:rgba(255,255,255,0.12);position:relative;overflow:hidden;}
+.loader-fill{position:absolute;left:0;top:0;height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));}
+.loader-tc{font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:.1em;}
+
+/* scroll progress = scrub bar */
+#scrub{
+  position:fixed;top:0;left:0;width:100%;height:3px;z-index:9990;background:rgba(255,255,255,0.05);
+}
+#scrub-fill{
+  height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--purple));
+  box-shadow:0 0 12px rgba(62,143,255,.6);
+}
+#scrub-tc{
+  position:fixed;top:8px;right:20px;z-index:9990;font-family:var(--mono);font-size:10px;color:var(--text-faint);
+  letter-spacing:.08em;
+}
+@media(max-width:640px){ #scrub-tc{display:none;} }
+
+/* nav */
+header{
+  position:fixed;top:0;left:0;width:100%;z-index:500;padding:22px 0;transition:padding .4s var(--ease),background .4s;
+}
+header.scrolled{ padding:12px 0; background:rgba(11,11,11,0.72); backdrop-filter:blur(16px); border-bottom:1px solid var(--glass-border); }
+nav{display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:var(--display);font-weight:600;font-size:19px;letter-spacing:.02em;display:flex;align-items:center;gap:8px;}
+.logo span{color:var(--blue);}
+.logo .tc{font-family:var(--mono);font-size:10px;color:var(--text-faint);letter-spacing:.1em;margin-left:10px;padding-left:10px;border-left:1px solid var(--glass-border);}
+@media(max-width:760px){ .logo .tc{display:none;} }
+.nav-links{display:flex;gap:34px;list-style:none;}
+.nav-links a{font-size:13.5px;color:var(--text-dim);letter-spacing:.02em;position:relative;padding:4px 0;transition:color .3s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--blue);transition:width .3s var(--ease);}
+.nav-links a:hover::after{width:100%;}
+.nav-cta{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;padding:9px 18px;border:1px solid var(--glass-border);border-radius:999px;background:var(--glass);transition:all .3s var(--ease);}
+.nav-cta:hover{border-color:var(--blue);box-shadow:0 0 22px rgba(62,143,255,.25);}
+.burger{display:none;flex-direction:column;gap:5px;z-index:600;}
+.burger span{width:22px;height:1.5px;background:var(--text);}
+@media(max-width:900px){
+  .nav-links{display:none;}
+  .nav-cta{display:none;}
+  .burger{display:flex;}
+}
+.mobile-menu{
+  position:fixed;inset:0;background:rgba(9,9,10,0.98);backdrop-filter:blur(10px);z-index:490;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  transform:translateY(-100%);transition:transform .5s var(--ease);
+}
+.mobile-menu.open{transform:translateY(0);}
+.mobile-menu a{font-family:var(--display);font-size:26px;color:var(--text);}
+
+/* section generic */
+section{position:relative;padding:140px 0;}
+@media(max-width:760px){ section{padding:90px 0;} }
+.eyebrow{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--blue);}
+h2.title{font-family:var(--display);font-weight:600;font-size:clamp(30px,4.2vw,52px);line-height:1.08;letter-spacing:-.01em;max-width:760px;}
+.title .accent{background:linear-gradient(90deg,var(--blue),var(--cyan) 45%, var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.section-sub{color:var(--text-dim);font-size:15.5px;max-width:560px;margin-top:18px;line-height:1.7;}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(36px);}
+
+/* HERO */
+#hero{
+  height:100svh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding:0;
+}
+#particles{position:absolute;inset:0;z-index:0;}
+.hero-vignette{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at 50% 40%, transparent 30%, #0b0b0b 92%);pointer-events:none;}
+.hero-inner{position:relative;z-index:2;}
+.hero-frame{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--text-faint);
+  display:flex;gap:22px;margin-bottom:26px;text-transform:uppercase;
+}
+.hero-frame b{color:var(--blue);font-weight:400;}
+h1.hero-title{
+  font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.02;
+  font-size:clamp(40px,7.4vw,104px);max-width:1000px;
+}
+h1.hero-title .line{overflow:hidden;display:block;}
+h1.hero-title .line span{display:inline-block;transform:translateY(110%);}
+h1.hero-title em{
+  font-style:normal;background:linear-gradient(90deg,var(--blue),var(--cyan) 40%, var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-sub{margin-top:26px;font-size:16.5px;color:var(--text-dim);max-width:560px;line-height:1.7;}
+.hero-btns{display:flex;gap:16px;margin-top:44px;flex-wrap:wrap;}
+.btn{
+  font-family:var(--body);font-weight:500;font-size:14.5px;padding:16px 30px;border-radius:999px;
+  display:inline-flex;align-items:center;gap:10px;letter-spacing:.01em;transition:transform .35s var(--ease), box-shadow .35s var(--ease);
+  position:relative;overflow:hidden;
+}
+.btn-primary{background:linear-gradient(90deg,var(--blue),var(--purple));color:#fff;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(62,143,255,.35);}
+.btn-outline{border:1px solid var(--glass-border);background:var(--glass);color:var(--text);}
+.btn-outline:hover{transform:translateY(-2px);border-color:var(--purple);box-shadow:0 8px 30px rgba(168,85,247,.2);}
+.scroll-cue{
+  position:absolute;bottom:38px;left:50%;transform:translateX(-50%);z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.2em;color:var(--text-faint);text-transform:uppercase;
+}
+.scroll-cue .bar{width:1px;height:34px;background:linear-gradient(to bottom, var(--blue), transparent);overflow:hidden;position:relative;}
+.scroll-cue .bar i{position:absolute;top:-100%;left:0;width:100%;height:100%;background:var(--blue);animation:scrolldrop 1.8s ease-in-out infinite;}
+@keyframes scrolldrop{ 0%{top:-100%;} 100%{top:100%;} }
+
+/* glass card base */
+.glass{
+  background:var(--glass);border:1px solid var(--glass-border);border-radius:18px;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+
+/* ABOUT */
+#about .about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:70px;margin-top:60px;align-items:start;}
+@media(max-width:900px){ #about .about-grid{grid-template-columns:1fr;gap:50px;} }
+#about p.bio{color:var(--text-dim);font-size:16px;line-height:1.85;}
+.about-side .block{margin-bottom:34px;}
+.about-side h4{font-family:var(--mono);font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:16px;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;}
+.chip{
+  padding:9px 16px;border:1px solid var(--glass-border);border-radius:999px;font-size:13px;color:var(--text-dim);
+  background:var(--glass);transition:all .3s var(--ease);
+}
+.chip:hover{border-color:var(--blue);color:var(--text);transform:translateY(-2px);}
+.exp-row{display:flex;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--glass-border);}
+.exp-row:last-child{border-bottom:none;}
+.exp-row .yr{font-family:var(--mono);color:var(--blue);font-size:13px;min-width:70px;}
+.exp-row .txt{color:var(--text-dim);font-size:14.5px;}
+.soft-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;}
+.soft-item{
+  padding:14px 10px;text-align:center;border:1px solid var(--glass-border);border-radius:12px;font-size:12.5px;
+  color:var(--text-dim);background:var(--glass);transition:all .3s;
+}
+.soft-item:hover{color:var(--text);border-color:var(--purple);}
+
+/* PORTFOLIO */
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin:50px 0 42px;}
+.filter-btn{
+  padding:9px 18px;border-radius:999px;border:1px solid var(--glass-border);font-size:13px;color:var(--text-dim);
+  background:transparent;transition:all .3s var(--ease);
+}
+.filter-btn.active,.filter-btn:hover{background:linear-gradient(90deg,var(--blue),var(--purple));color:#fff;border-color:transparent;}
+.grid-portfolio{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+@media(max-width:980px){ .grid-portfolio{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:640px){ .grid-portfolio{grid-template-columns:1fr;} }
+.pcard{
+  border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--glass-border);background:var(--bg-soft);
+  transition:transform .5s var(--ease), border-color .4s;
+}
+.pcard:hover{transform:translateY(-6px);border-color:rgba(62,143,255,.4);}
+.pcard-media{aspect-ratio:16/10;position:relative;overflow:hidden;background:#141416;}
+.pcard-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease);}
+.pcard:hover .pcard-media img{transform:scale(1.08);}
+.pcard-overlay{position:absolute;inset:0;background:linear-gradient(180deg, transparent 30%, rgba(0,0,0,.85));display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .4s;}
+.pcard:hover .pcard-overlay{opacity:1;}
+.playbtn{
+  width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);background:rgba(255,255,255,.06);transform:scale(.7);transition:transform .4s var(--ease);
+}
+.pcard:hover .playbtn{transform:scale(1);}
+.playbtn svg{width:16px;height:16px;margin-left:3px;fill:#fff;}
+.pcard-body{padding:22px;}
+.pcard-cat{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--purple);}
+.pcard-title{font-family:var(--display);font-size:18px;margin-top:8px;font-weight:600;}
+.pcard-desc{color:var(--text-dim);font-size:13.5px;margin-top:8px;line-height:1.6;}
+.pcard-watch{margin-top:16px;font-size:12.5px;color:var(--blue);display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);letter-spacing:.05em;}
+.pcard-watch svg{width:11px;height:11px;transition:transform .3s;}
+.pcard:hover .pcard-watch svg{transform:translateX(4px);}
+
+/* modal */
+#video-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:800;display:none;align-items:center;justify-content:center;padding:30px;}
+#video-modal.open{display:flex;}
+.modal-box{width:100%;max-width:900px;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;position:relative;border:1px solid var(--glass-border);}
+.modal-box iframe,.modal-box video{width:100%;height:100%;}
+.modal-close{position:absolute;top:-46px;right:0;font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:.1em;}
+
+/* SHOWREEL */
+#showreel{text-align:center;}
+.reel-frame{
+  margin-top:50px;position:relative;border-radius:22px;overflow:hidden;aspect-ratio:16/8;
+  border:1px solid var(--glass-border);background:#000 url('https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1600&q=70') center/cover;
+}
+.reel-frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.65));}
+.reel-play{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;
+}
+.reel-play-btn{
+  width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);position:relative;
+}
+.reel-play-btn::before{content:"";position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(62,143,255,.5);animation:pulse-ring 2.4s ease-out infinite;}
+@keyframes pulse-ring{0%{transform:scale(.8);opacity:.9;}100%{transform:scale(1.5);opacity:0;}}
+.reel-play-btn svg{width:26px;height:26px;fill:#fff;margin-left:4px;}
+.reel-tc{position:absolute;bottom:20px;left:24px;z-index:2;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.7);letter-spacing:.1em;}
+
+/* SERVICES */
+.grid-services{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:56px;}
+@media(max-width:980px){ .grid-services{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:560px){ .grid-services{grid-template-columns:1fr;} }
+.scard{
+  padding:30px 24px;border-radius:18px;transition:all .4s var(--ease);position:relative;overflow:hidden;
+}
+.scard:hover{transform:translateY(-6px);border-color:rgba(62,143,255,.35);box-shadow:0 20px 50px rgba(0,0,0,.4);}
+.scard .icn{width:38px;height:38px;margin-bottom:20px;color:var(--blue);}
+.scard h3{font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:8px;}
+.scard p{color:var(--text-dim);font-size:13.5px;line-height:1.6;}
+.scard .num{position:absolute;top:18px;right:20px;font-family:var(--mono);font-size:11px;color:var(--text-faint);}
+
+/* STATS */
+.grid-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--glass-border);border:1px solid var(--glass-border);border-radius:20px;overflow:hidden;margin-top:56px;}
+@media(max-width:760px){ .grid-stats{grid-template-columns:repeat(2,1fr);} }
+.stat{padding:44px 30px;background:var(--bg-soft);text-align:center;}
+.stat .num{font-family:var(--display);font-size:clamp(30px,4vw,46px);font-weight:700;background:linear-gradient(90deg,var(--blue),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.stat .lbl{margin-top:10px;font-size:13px;color:var(--text-dim);letter-spacing:.02em;}
+
+/* TESTIMONIALS */
+.grid-testi{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;}
+@media(max-width:900px){ .grid-testi{grid-template-columns:1fr;} }
+.tcard{padding:32px;border-radius:18px;}
+.stars{color:var(--cyan);font-size:14px;letter-spacing:2px;margin-bottom:18px;}
+.tcard p.quote{font-size:15px;line-height:1.75;color:var(--text);font-style:italic;}
+.tcard .who{display:flex;align-items:center;gap:12px;margin-top:24px;}
+.tcard .who img{width:42px;height:42px;border-radius:50%;object-fit:cover;filter:grayscale(30%);}
+.tcard .who .n{font-size:13.5px;font-weight:600;}
+.tcard .who .r{font-size:12px;color:var(--text-dim);}
+
+/* PRICING */
+.grid-pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;align-items:stretch;}
+@media(max-width:900px){ .grid-pricing{grid-template-columns:1fr;} }
+.price-card{padding:38px 30px;border-radius:20px;display:flex;flex-direction:column;position:relative;transition:transform .4s var(--ease);}
+.price-card:hover{transform:translateY(-6px);}
+.price-card.hi{border-image:linear-gradient(135deg,var(--blue),var(--purple)) 1;border:1px solid transparent;background:linear-gradient(var(--bg-elevated),var(--bg-elevated)) padding-box, linear-gradient(135deg,var(--blue),var(--purple)) border-box;box-shadow:0 30px 70px rgba(62,143,255,.15);}
+.price-tag{position:absolute;top:-13px;right:28px;background:linear-gradient(90deg,var(--blue),var(--purple));font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:6px 14px;border-radius:999px;color:#fff;}
+.price-name{font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);}
+.price-amt{font-family:var(--display);font-size:42px;font-weight:700;margin:14px 0 20px;}
+.price-amt span{font-size:14px;color:var(--text-dim);font-weight:400;}
+.price-list{list-style:none;margin-bottom:30px;flex:1;}
+.price-list li{padding:11px 0;border-bottom:1px solid var(--glass-border);font-size:13.5px;color:var(--text-dim);display:flex;align-items:center;gap:10px;}
+.price-list li:last-child{border:none;}
+.price-list li svg{width:13px;height:13px;color:var(--blue);flex-shrink:0;}
+
+/* WORKFLOW */
+.timeline{position:relative;margin-top:70px;padding-left:2px;}
+.tl-line{position:absolute;left:19px;top:10px;bottom:10px;width:1px;background:linear-gradient(to bottom, var(--blue), var(--purple));}
+.tl-item{display:flex;gap:28px;padding-bottom:52px;position:relative;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{
+  width:40px;height:40px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--glass-border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--blue);z-index:1;
+}
+.tl-body h4{font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px;}
+.tl-body p{color:var(--text-dim);font-size:13.5px;max-width:480px;line-height:1.6;}
+.tl-body .tc{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-bottom:6px;letter-spacing:.1em;}
+
+/* CONTACT */
+#contact .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;margin-top:56px;}
+@media(max-width:900px){ #contact .contact-grid{grid-template-columns:1fr;gap:50px;} }
+.field{margin-bottom:20px;}
+.field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:9px;}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:13px 16px;
+  color:var(--text);font-family:var(--body);font-size:14px;transition:border-color .3s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--blue);}
+.field textarea{resize:vertical;min-height:110px;}
+.form-btns{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
+.contact-side h4{font-family:var(--mono);font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:18px;}
+.socials{display:flex;gap:12px;flex-wrap:wrap;}
+.social-btn{
+  width:46px;height:46px;border-radius:50%;border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;
+  background:var(--glass);transition:all .3s var(--ease);
+}
+.social-btn:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 24px rgba(62,143,255,.25);}
+.social-btn svg{width:18px;height:18px;}
+.contact-quote{margin-top:40px;padding-top:30px;border-top:1px solid var(--glass-border);font-family:var(--display);font-size:20px;line-height:1.5;color:var(--text-dim);}
+.contact-quote em{color:var(--text);font-style:normal;}
+
+/* FOOTER */
+footer{padding:60px 0 40px;border-top:1px solid var(--glass-border);}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:40px;}
+.footer-links{display:flex;gap:34px;list-style:none;flex-wrap:wrap;}
+.footer-links a{font-size:13px;color:var(--text-dim);}
+.footer-links a:hover{color:var(--text);}
+.footer-bottom{margin-top:50px;padding-top:26px;border-top:1px solid var(--glass-border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--text-faint);font-family:var(--mono);}
+
+/* back to top */
+#totop{
+  position:fixed;bottom:28px;right:28px;width:48px;height:48px;border-radius:50%;z-index:400;
+  display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s, transform .3s;
+}
+#totop.show{opacity:1;pointer-events:auto;}
+#totop:hover{transform:translateY(-4px);border-color:var(--blue);}
+#totop svg{width:16px;height:16px;}
+
+.mono{font-family:var(--mono);}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="scanline"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-label" id="cursorLabel"></div>
+
+<!-- loader -->
+<div id="loader">
+  <div class="loader-mark">KIAN <span style="color:var(--blue)">REYES</span></div>
+  <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="loader-tc" id="loaderTc">00:00:00:00</div>
+</div>
+
+<!-- scrub progress -->
+<div id="scrub"><div id="scrub-fill"></div></div>
+<div id="scrub-tc" class="mono">00:00 / 11:00</div>
+
+<!-- nav -->
+<header id="siteHeader">
+  <div class="wrap">
+    <nav>
+      <a href="#hero" class="logo">KIAN<span>.</span>REYES <span class="tc mono" id="navTc">REC 00:00:00</span></a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#portfolio">Work</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#workflow">Process</a></li>
+      </ul>
+      <a href="#contact" class="nav-cta">LET'S TALK</a>
+      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+    </nav>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about">About</a>
+  <a href="#portfolio">Work</a>
+  <a href="#services">Services</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#workflow">Process</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="particles"></canvas>
+  <div class="hero-vignette"></div>
+  <div class="wrap hero-inner">
+    <div class="hero-frame mono">
+      <span>FRAME 001</span><b>//</b><span>NOW EDITING</span><b>//</b><span id="heroClock">00:00:00:00</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="line"><span>Turning Ideas Into</span></span>
+      <span class="line"><span><em>Cinematic Stories.</em></span></span>
+    </h1>
+    <p class="hero-sub reveal">Professional Video Editor specializing in YouTube, Commercials, Reels, Shorts, and Brand Content.</p>
+    <div class="hero-btns reveal">
+      <a href="#portfolio" class="btn btn-primary">View Portfolio</a>
+      <a href="#contact" class="btn btn-outline">Contact Me</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><div class="bar"><i></i></div></div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="eyebrow reveal">// About Me</div>
+    <h2 class="title reveal">Cut on story. <span class="accent">Graded for feeling.</span></h2>
+    <div class="about-grid">
+      <div>
+        <p class="bio reveal">Hi, I'm a passionate video editor focused on creating engaging, high-retention videos that help creators and businesses grow. I specialize in storytelling, cinematic editing, color grading, motion graphics, sound design, and social media content.</p>
+      </div>
+      <div class="about-side">
+        <div class="block reveal">
+          <h4>Skills</h4>
+          <div class="chips">
+            <div class="chip">Video Editing</div>
+            <div class="chip">Motion Graphics</div>
+            <div class="chip">Color Grading</div>
+            <div class="chip">Sound Design</div>
+            <div class="chip">Storytelling</div>
+            <div class="chip">Visual Effects</div>
+          </div>
+        </div>
+        <div class="block reveal">
+          <h4>Experience</h4>
+          <div class="exp-row"><span class="yr mono">2024—Now</span><span class="txt">Freelance Editor for global YouTube creators & brands</span></div>
+          <div class="exp-row"><span class="yr mono">2022—24</span><span class="txt">Senior Editor, in-house content studio</span></div>
+          <div class="exp-row"><span class="yr mono">2020—22</span><span class="txt">Junior Editor & Motion Designer</span></div>
+        </div>
+        <div class="block reveal">
+          <h4>Editing Software</h4>
+          <div class="soft-grid">
+            <div class="soft-item">Premiere Pro</div>
+            <div class="soft-item">After Effects</div>
+            <div class="soft-item">DaVinci Resolve</div>
+            <div class="soft-item">Photoshop</div>
+            <div class="soft-item">Illustrator</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="wrap">
+    <div class="eyebrow reveal">// Selected Work</div>
+    <h2 class="title reveal">A reel for every <span class="accent">platform.</span></h2>
+    <p class="section-sub reveal">Filter by format — every card is wired for a one-line swap to your YouTube or Vimeo embed.</p>
+
+    <div class="filters reveal" id="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="YouTube Videos">YouTube</button>
+      <button class="filter-btn" data-filter="Instagram Reels">Reels</button>
+      <button class="filter-btn" data-filter="TikTok Edits">TikTok</button>
+      <button class="filter-btn" data-filter="Commercial Ads">Commercials</button>
+      <button class="filter-btn" data-filter="Podcasts">Podcasts</button>
+      <button class="filter-btn" data-filter="Travel Videos">Travel</button>
+      <button class="filter-btn" data-filter="Documentary">Documentary</button>
+      <button class="filter-btn" data-filter="Gaming">Gaming</button>
+    </div>
+
+    <div class="grid-portfolio" id="portfolioGrid"></div>
+  </div>
+</section>
+
+<div id="video-modal">
+  <div class="modal-box">
+    <div class="modal-close" onclick="closeModal()">CLOSE ✕</div>
+    <!-- Replace src below with a YouTube/Vimeo embed URL per project -->
+    <iframe id="modalFrame" src="" title="Project video" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- SHOWREEL -->
+<section id="showreel">
+  <div class="wrap">
+    <div class="eyebrow reveal" style="justify-content:center;">// Showreel</div>
+    <h2 class="title reveal" style="margin:0 auto;text-align:center;">Featured Showreel</h2>
+    <div class="reel-frame reveal" onclick="playShowreel()">
+      <div class="reel-tc">00:00:00 — 02:14:08</div>
+      <div class="reel-play"><div class="reel-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <div class="eyebrow reveal">// Services</div>
+    <h2 class="title reveal">What I can <span class="accent">deliver.</span></h2>
+    <div class="grid-services" id="servicesGrid"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="why">
+  <div class="wrap">
+    <div class="eyebrow reveal">// Why Work With Me</div>
+    <h2 class="title reveal">Numbers that <span class="accent">back it up.</span></h2>
+    <div class="grid-stats">
+      <div class="stat reveal"><div class="num" data-count="100" data-suffix="+">0</div><div class="lbl">Projects Completed</div></div>
+      <div class="stat reveal"><div class="num" data-count="50" data-suffix="+">0</div><div class="lbl">Happy Clients</div></div>
+      <div class="stat reveal"><div class="num" data-count="5" data-suffix="+">0</div><div class="lbl">Years Experience</div></div>
+      <div class="stat reveal"><div class="num" style="font-size:22px;">Fast</div><div class="lbl">Delivery Turnaround</div></div>
+      <div class="stat reveal"><div class="num" style="font-size:22px;">Unlimited</div><div class="lbl">Revisions</div></div>
+      <div class="stat reveal"><div class="num" style="font-size:22px;">Direct</div><div class="lbl">Professional Communication</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="wrap">
+    <div class="eyebrow reveal">// Testimonials</div>
+    <h2 class="title reveal">Kind words from <span class="accent">clients.</span></h2>
+    <div class="grid-testi" id="testiGrid"></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="eyebrow reveal">// Pricing</div>
+    <h2 class="title reveal">Simple, <span class="accent">transparent plans.</span></h2>
+    <div class="grid-pricing" id="pricingGrid"></div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="wrap">
+    <div class="eyebrow reveal">// Workflow</div>
+    <h2 class="title reveal">From raw footage to <span class="accent">final cut.</span></h2>
+    <div class="timeline" id="timelineList">
+      <div class="tl-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="eyebrow reveal">// Contact</div>
+    <h2 class="title reveal">Let's cut something <span class="accent">great together.</span></h2>
+    <div class="contact-grid">
+      <form class="reveal" id="contactForm">
+        <div class="field"><label>Name</label><input type="text" required placeholder="Your name"></div>
+        <div class="field"><label>Email</label><input type="email" required placeholder="you@email.com"></div>
+        <div class="field"><label>Project Type</label>
+          <select>
+            <option>YouTube Video</option>
+            <option>Commercial Ad</option>
+            <option>Short-Form / Reels</option>
+            <option>Documentary</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Budget</label>
+          <select>
+            <option>Under $500</option>
+            <option>$500 – $1,500</option>
+            <option>$1,500 – $5,000</option>
+            <option>$5,000+</option>
+          </select>
+        </div>
+        <div class="field"><label>Message</label><textarea required placeholder="Tell me about your project..."></textarea></div>
+        <div class="form-btns">
+          <button type="submit" class="btn btn-primary">Send Message</button>
+          <a href="#" class="btn btn-outline">Book a Call</a>
+        </div>
+      </form>
+      <div class="contact-side reveal">
+        <h4>Find Me Elsewhere</h4>
+        <div class="socials" id="socialIcons"></div>
+        <div class="contact-quote">"Every frame is a decision. <em>I make sure yours tell the right story.</em>"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="logo">KIAN<span>.</span>REYES</div>
+      <ul class="footer-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#portfolio">Work</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="socials" id="socialIconsFooter"></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Kian Reyes. All rights reserved.</span>
+      <span>Designed with creativity.</span>
+    </div>
+  </div>
+</footer>
+
+<button id="totop" class="glass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ---------- ICON LIBRARY (inline svg, stroke style) ---------- */
+const icons = {
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/></svg>',
+  motion:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="4 3"/></svg>',
+  color:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 6"/></svg>',
+  sound:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16 8a5 5 0 0 1 0 8"/></svg>',
+  wedding:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="15" r="4"/><circle cx="16" cy="15" r="4"/><path d="M12 3l2 4h-4z"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>',
+  social:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="12" r="2.4"/><circle cx="17" cy="6" r="2.4"/><circle cx="17" cy="18" r="2.4"/><path d="M8 11l7-4M8 13l7 4"/></svg>',
+  short:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 8l4 3-4 3z" fill="currentColor" stroke="none"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  ig:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>',
+  yt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>',
+  li:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 0 1 4 0v4M11 13v4"/></svg>',
+  be:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h6M3 6v12h5a3 3 0 0 0 0-6H3M14 12a5 5 0 1 1 7 4"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+  wa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20l1.4-4A8 8 0 1 1 9 19l-5 1z"/><path d="M9 10c0 3 2 5 5 5"/></svg>'
+};
+
+/* ---------- PORTFOLIO DATA ---------- */
+const projects = [
+  {cat:'YouTube Videos', title:'The Growth Vlog', desc:'High-retention edit for a creator channel, cut for pacing and payoff.', img:'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {cat:'Instagram Reels', title:'Studio Launch', desc:'Fast-cut brand reel built for the scroll, sound-designed to the beat.', img:'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {cat:'TikTok Edits', title:'Founder Story', desc:'Vertical narrative edit with captions, punch-ins and trend-aware pacing.', img:'https://images.unsplash.com/photo-1616469829581-73993eb86b02?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {cat:'Commercial Ads', title:'Aether Watches', desc:'30-second commercial with cinematic color grade and motion titles.', img:'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {cat:'Podcasts', title:'Long Form Talks', desc:'Multi-cam podcast edit with dynamic captions and clip-ready chapters.', img:'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {cat:'Travel Videos', title:'Kyoto in Motion', desc:'Travel story graded for warmth, layered sound design of place.', img:'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {cat:'Documentary', title:'Coastline', desc:'Short documentary edit balancing interview and observational footage.', img:'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {cat:'Gaming', title:'Frame Perfect', desc:'Montage edit synced to gameplay highlights with kinetic overlays.', img:'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=70', video:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+];
+
+const grid = document.getElementById('portfolioGrid');
+function renderProjects(filter){
+  grid.innerHTML = '';
+  projects.filter(p=> filter==='all' || p.cat===filter).forEach((p,i)=>{
+    const el = document.createElement('div');
+    el.className = 'pcard reveal';
+    el.innerHTML = `
+      <div class="pcard-media">
+        <img src="${p.img}" alt="${p.title} — ${p.cat} thumbnail" loading="lazy">
+        <div class="pcard-overlay"><div class="playbtn">${icons.short.replace('rect','rect').replace('<svg','<svg').replace(/currentColor/g,'#fff')}</div></div>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">${p.cat}</div>
+        <div class="pcard-title">${p.title}</div>
+        <div class="pcard-desc">${p.desc}</div>
+        <div class="pcard-watch">Watch Video ${icons.arrow}</div>
+      </div>`;
+    el.querySelector('.pcard-media').addEventListener('click', ()=> openModal(p.video));
+    el.querySelector('.pcard-watch').addEventListener('click', ()=> openModal(p.video));
+    grid.appendChild(el);
+  });
+  ScrollTrigger.refresh();
+  revealNew(grid.querySelectorAll('.reveal'));
+}
+renderProjects('all');
+
+document.getElementById('filters').addEventListener('click', e=>{
+  const btn = e.target.closest('.filter-btn');
+  if(!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProjects(btn.dataset.filter);
+});
+
+function openModal(src){
+  const modal = document.getElementById('video-modal');
+  document.getElementById('modalFrame').src = src + '?autoplay=1';
+  modal.classList.add('open');
+}
+function closeModal(){
+  document.getElementById('video-modal').classList.remove('open');
+  document.getElementById('modalFrame').src = '';
+}
+document.getElementById('video-modal').addEventListener('click', e=>{ if(e.target.id==='video-modal') closeModal(); });
+function playShowreel(){ openModal('https://www.youtube.com/embed/dQw4w9WgXcQ'); }
+
+/* ---------- SERVICES ---------- */
+const services = [
+  {icon:'yt', title:'YouTube Editing', desc:'Retention-first edits built to keep viewers watching to the end.'},
+  {icon:'short', title:'Short Form Content', desc:'Reels, Shorts & TikToks cut for the scroll and the algorithm.'},
+  {icon:'edit', title:'Commercial Ads', desc:'Polished brand spots with a clear message and clean pacing.'},
+  {icon:'motion', title:'Motion Graphics', desc:'Custom titles, lower-thirds and kinetic type that feel premium.'},
+  {icon:'color', title:'Color Grading', desc:'Cinematic looks that carry mood without losing the source.'},
+  {icon:'wedding', title:'Wedding Videos', desc:'Emotional, story-led cuts of the day, graded and scored.'},
+  {icon:'doc', title:'Documentary Editing', desc:'Long-form structure, pacing, and interview weaving.'},
+  {icon:'social', title:'Social Media Content', desc:'Consistent batch content built around a channel\'s voice.'}
+];
+document.getElementById('servicesGrid').innerHTML = services.map((s,i)=>`
+  <div class="scard glass reveal">
+    <div class="num mono">0${i+1}</div>
+    <div class="icn">${icons[s.icon]}</div>
+    <h3>${s.title}</h3>
+    <p>${s.desc}</p>
+  </div>`).join('');
+
+/* ---------- TESTIMONIALS ---------- */
+const testimonials = [
+  {name:'Maya Chen', role:'YouTube Creator, 900K subs', quote:'The editing quality exceeded our expectations. Highly recommended.', img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=70'},
+  {name:'Daniel Ortiz', role:'Founder, Aether Watches', quote:'Turned our raw footage into a commercial that actually converted. Fast, professional, precise.', img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=70'},
+  {name:'Priya Nair', role:'Podcast Host', quote:'Every episode comes back tighter and more watchable than I imagined. A true creative partner.', img:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=70'}
+];
+document.getElementById('testiGrid').innerHTML = testimonials.map(t=>`
+  <div class="tcard glass reveal">
+    <div class="stars">★★★★★</div>
+    <p class="quote">"${t.quote}"</p>
+    <div class="who">
+      <img src="${t.img}" alt="${t.name}">
+      <div><div class="n">${t.name}</div><div class="r">${t.role}</div></div>
+    </div>
+  </div>`).join('');
+
+/* ---------- PRICING ---------- */
+const plans = [
+  {name:'Basic', price:99, hi:false, features:['Editing (up to 5 min)','Basic Color Correction','—','—','5-Day Delivery']},
+  {name:'Standard', price:249, hi:true, features:['Editing (up to 15 min)','Advanced Color Grading','Motion Graphics','Sound Design','3-Day Delivery']},
+  {name:'Premium', price:499, hi:false, features:['Editing (unlimited length)','Cinematic Color Grading','Custom Motion Graphics','Full Sound Design & Mix','24–48h Delivery']},
+];
+document.getElementById('pricingGrid').innerHTML = plans.map(p=>`
+  <div class="price-card glass reveal ${p.hi?'hi':''}">
+    ${p.hi?'<div class="price-tag">MOST POPULAR</div>':''}
+    <div class="price-name">${p.name}</div>
+    <div class="price-amt">$${p.price}<span> / project</span></div>
+    <ul class="price-list">
+      ${p.features.map(f=>`<li>${icons.check}${f}</li>`).join('')}
+    </ul>
+    <a href="#contact" class="btn ${p.hi?'btn-primary':'btn-outline'}" style="justify-content:center;">Get Started</a>
+  </div>`).join('');
+
+/* ---------- WORKFLOW ---------- */
+const steps = [
+  {t:'Receive Footage', d:'Raw files, briefs and references are organized and reviewed.'},
+  {t:'Plan Edit', d:'A structure and pacing plan is mapped before any cutting begins.'},
+  {t:'Video Editing', d:'The rough cut is assembled — story first, polish second.'},
+  {t:'Color Grading', d:'A consistent, cinematic look is applied across every shot.'},
+  {t:'Motion Graphics', d:'Titles, overlays and animated elements are built in.'},
+  {t:'Sound Design', d:'Music, SFX and mix are layered for full emotional impact.'},
+  {t:'Final Delivery', d:'Export, review, and revisions until it\'s exactly right.'}
+];
+document.getElementById('timelineList').innerHTML += steps.map((s,i)=>`
+  <div class="tl-item reveal">
+    <div class="tl-dot mono">${String(i+1).padStart(2,'0')}</div>
+    <div class="tl-body">
+      <div class="tc mono">STEP ${i+1} / ${steps.length}</div>
+      <h4>${s.t}</h4>
+      <p>${s.d}</p>
+    </div>
+  </div>`).join('');
+
+/* ---------- SOCIALS ---------- */
+const socials = [
+  {icon:'ig', href:'#'}, {icon:'yt', href:'#'}, {icon:'li', href:'#'},
+  {icon:'be', href:'#'}, {icon:'mail', href:'mailto:hello@kianreyes.example'}, {icon:'wa', href:'#'}
+];
+const socialHtml = socials.map(s=>`<a class="social-btn glass" href="${s.href}" target="_blank" rel="noopener">${icons[s.icon]}</a>`).join('');
+document.getElementById('socialIcons').innerHTML = socialHtml;
+document.getElementById('socialIconsFooter').innerHTML = socialHtml;
+
+/* ---------- CONTACT FORM ---------- */
+document.getElementById('contactForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  const original = btn.textContent;
+  btn.textContent = 'Message Sent ✓';
+  setTimeout(()=>{ btn.textContent = original; e.target.reset(); }, 2400);
+});
+
+/* ---------- LOADER + TIMECODE ---------- */
+let frame = 0;
+function tcString(f){
+  const fps=30;
+  const h=String(Math.floor(f/(fps*3600))).padStart(2,'0');
+  const m=String(Math.floor((f/(fps*60))%60)).padStart(2,'0');
+  const s=String(Math.floor((f/fps)%60)).padStart(2,'0');
+  const fr=String(Math.floor(f%fps)).padStart(2,'0');
+  return `${h}:${m}:${s}:${fr}`;
+}
+let clockTimer = setInterval(()=>{
+  frame += 30;
+  document.getElementById('heroClock') && (document.getElementById('heroClock').textContent = tcString(frame));
+  document.getElementById('loaderTc') && (document.getElementById('loaderTc').textContent = tcString(frame));
+}, 1000);
+
+window.addEventListener('load', ()=>{
+  const fill = document.getElementById('loaderFill');
+  gsap.to(fill, {width:'100%', duration:1.3, ease:'power2.inOut', onComplete:()=>{
+    gsap.to('#loader', {opacity:0, duration:.6, delay:.15, onComplete:()=>{
+      document.getElementById('loader').style.display='none';
+      playHeroIntro();
+    }});
+  }});
+});
+
+function playHeroIntro(){
+  gsap.to('.hero-title .line span', {y:'0%', duration:1.1, stagger:.12, ease:'power4.out'});
+  gsap.to('.hero-sub, .hero-btns', {opacity:1, y:0, duration:1, delay:.5, stagger:.15, ease:'power3.out'});
+}
+
+/* ---------- SCROLL REVEAL ---------- */
+function revealNew(nodes){
+  nodes.forEach(el=>{
+    gsap.to(el, {
+      opacity:1, y:0, duration:.9, ease:'power3.out',
+      scrollTrigger:{ trigger:el, start:'top 88%' }
+    });
+  });
+}
+revealNew(document.querySelectorAll('.reveal'));
+
+/* stat counters */
+document.querySelectorAll('.stat .num[data-count]').forEach(el=>{
+  const target = +el.dataset.count;
+  const suffix = el.dataset.suffix || '';
+  ScrollTrigger.create({
+    trigger:el, start:'top 85%', once:true,
+    onEnter:()=>{
+      let obj={v:0};
+      gsap.to(obj, {v:target, duration:1.6, ease:'power2.out', onUpdate:()=>{ el.textContent = Math.floor(obj.v)+suffix; }});
+    }
+  });
+});
+
+/* ---------- HEADER SCROLL STATE ---------- */
+ScrollTrigger.create({
+  start:'top -60', end:99999,
+  onUpdate: self => document.getElementById('siteHeader').classList.toggle('scrolled', self.scroll()>60)
+});
+
+/* ---------- SCRUB / PROGRESS BAR ---------- */
+ScrollTrigger.create({
+  trigger:'body', start:'top top', end:'bottom bottom',
+  onUpdate: self => {
+    const pct = self.progress*100;
+    document.getElementById('scrub-fill').style.width = pct+'%';
+    const totalSec = 11*60;
+    const cur = Math.floor(self.progress*totalSec);
+    const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    document.getElementById('scrub-tc').textContent = fmt(cur)+' / '+fmt(totalSec);
+  }
+});
+
+/* ---------- BACK TO TOP ---------- */
+const totop = document.getElementById('totop');
+ScrollTrigger.create({ start:'top -400', end:99999, onUpdate:self=> totop.classList.toggle('show', self.scroll()>400) });
+totop.addEventListener('click', ()=> gsap.to(window, {duration:1, scrollTo:0, ease:'power3.inOut'}));
+// fallback smooth scroll without ScrollToPlugin
+totop.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+
+/* ---------- MOBILE MENU ---------- */
+const burger = document.getElementById('burger');
+const mmenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', ()=>{ mmenu.classList.toggle('open'); });
+mmenu.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> mmenu.classList.remove('open')));
+
+/* ---------- CUSTOM CURSOR ---------- */
+const cursor = document.getElementById('cursor');
+const glow = document.getElementById('cursorGlow');
+const label = document.getElementById('cursorLabel');
+if(window.matchMedia('(pointer:fine)').matches){
+  window.addEventListener('mousemove', e=>{
+    gsap.to(cursor, {x:e.clientX, y:e.clientY, duration:.12});
+    gsap.to(glow, {x:e.clientX, y:e.clientY, duration:.5});
+    gsap.to(label, {x:e.clientX, y:e.clientY, duration:.12});
+  });
+  document.querySelectorAll('a, button, .pcard, .filter-btn').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ cursor.style.transform='translate(-50%,-50%) scale(2.2)'; });
+    el.addEventListener('mouseleave', ()=>{ cursor.style.transform='translate(-50%,-50%) scale(1)'; });
+  });
+  document.querySelectorAll('.pcard').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ label.textContent='WATCH'; label.style.opacity=1; });
+    el.addEventListener('mouseleave', ()=>{ label.style.opacity=0; });
+  });
+}
+
+/* ---------- PARTICLE CANVAS (hero) ---------- */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W,H,particles=[];
+function resize(){
+  W = canvas.width = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+}
+function initParticles(){
+  particles = [];
+  const count = Math.min(90, Math.floor(W/16));
+  for(let i=0;i<count;i++){
+    particles.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*1.6+.4,
+      vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25,
+      c: Math.random()>0.5 ? 'rgba(62,143,255,' : 'rgba(168,85,247,'
+    });
+  }
+}
+function drawParticles(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = p.c+ (Math.random()*.25+.35) +')';
+    ctx.fill();
+  });
+  // subtle connecting lines
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const a=particles[i], b=particles[j];
+      const d = Math.hypot(a.x-b.x, a.y-b.y);
+      if(d<90){
+        ctx.beginPath();
+        ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle = `rgba(125,249,255,${(1-d/90)*0.08})`;
+        ctx.lineWidth=1;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawParticles);
+}
+window.addEventListener('resize', ()=>{ resize(); initParticles(); });
+resize(); initParticles(); drawParticles();
+</script>
+</body>
+</html>
